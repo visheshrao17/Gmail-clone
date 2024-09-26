@@ -126,6 +126,7 @@ function Middle(props) {
         email: data.email,
         sender: data.sender,
       });
+      alert("your message got snoozed")
     } catch (err) {
       console.error(err);
     }
