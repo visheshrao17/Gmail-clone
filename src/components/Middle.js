@@ -1,5 +1,3 @@
-
-
 import { List, ListItem, Paper } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import star from "../images/star.png";
@@ -14,7 +12,7 @@ function Middle(props) {
   const [mailData, setMailData] = useState([]);
   const [show, setShow] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false); // For refresh animation
-  const [alertShown, setAlertShown] = useState(false); // To track if the alert has been shown
+  const [alertShownCount, setAlertShownCount] = useState(0); // To track if the alert has been shown
 
   // Static mails to be displayed by default in the Inbox only
   const staticMails = [
@@ -106,6 +104,18 @@ function Middle(props) {
     }
   };
 
+  const removeStarred = async (data) => {
+    const userDoc = doc(database, "Users", `${auth.currentUser?.email}`);
+    const messageDoc = doc(userDoc, "Starred", `${data.id}`);
+    try {
+      await deleteDoc(messageDoc);
+      data.starred = false; // Mark as unstarred
+      setMailData([...mailData]); // Update the UI
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const snoozed = async (data) => {
     const userDoc = doc(database, "Users", `${auth.currentUser?.email}`);
     const messageDoc = doc(userDoc, "Snoozed", `${data.id}`);
@@ -134,11 +144,8 @@ function Middle(props) {
 
   // Function to show the alert only once
   const showAlertOnce = () => {
-    if (!alertShown && !sessionStorage.getItem('alertShown')) {
       alert("Can't open, work in progress");
-      setAlertShown(true);
-      sessionStorage.setItem('alertShown', 'true');
-    }
+      setAlertShownCount(alertShownCount+1);
   };
 
   return (
@@ -166,7 +173,7 @@ function Middle(props) {
         >
           <ListItem>
             {data.starred
-              ? <img src={yellow} style={{ cursor: "pointer", width: "1.4vw", height: "1.4vw" }} />
+              ? <img onClick={() => removeStarred(data)} src={yellow} style={{ cursor: "pointer", width: "1.4vw", height: "1.4vw" }} />
               : <img onClick={() => starred(data)} src={star} style={{ cursor: "pointer", width: "1.4vw", height: "1.4vw" }} />}
             <span 
               style={{ fontSize: "1.3vw", marginLeft: "1.2vw", fontWeight: "500", cursor: "pointer" }} 
@@ -187,7 +194,7 @@ function Middle(props) {
               </span>
             </span>
             {show && <img onClick={() => snoozed(data)} src={snooze} style={{ marginLeft: "1vw", width: "1.3vw", height: "1.3vw", cursor: "pointer" }} />}
-            {show && <img onClick={() => deleteMail(data)} src={remove} style={{ width: "1.1vw", height: "1.1vw", marginLeft: "1vw", cursor: "pointer" }} />}
+            {/* {show && <img onClick={() => deleteMail(data)} src={remove} style={{ width: "1.1vw", height: "1.1vw", marginLeft: "1vw", cursor: "pointer" }} />} */}
           </ListItem>
         </Paper>
       ))}
@@ -198,6 +205,7 @@ function Middle(props) {
 }
 
 export default Middle;
+
 
 
 
