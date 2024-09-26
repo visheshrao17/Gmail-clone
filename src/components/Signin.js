@@ -39,7 +39,7 @@ function Signin() {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: "100px 20px",
+    // padding: "100px 20px",
     backgroundColor: "#f5f5f5",
     height: "100vh",
   }}
